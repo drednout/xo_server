@@ -1,0 +1,7 @@
+host: localhost
+port: 6379
+password: 
+db: 0
+rating_db: 3
+script_dir: redis_lua_scripts
+use_hiredis: True

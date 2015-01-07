@@ -1,0 +1,5 @@
+!include cfg/common.yml
+
+service:
+    host: localhost
+    port: 12301

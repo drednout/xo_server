@@ -1,0 +1,5 @@
+!include cfg/mysql_conf.yml
+!include cfg/redis_conf.yml
+!include cfg/rabbitmq_conf.yml
+
+serialization_format: json
