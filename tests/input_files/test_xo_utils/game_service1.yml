@@ -1,0 +1,5 @@
+!include tests/input_files/test_xo_utils/common.yml
+
+service:
+    host: localhost
+    port: 12301

@@ -1,0 +1,5 @@
+host: localhost
+port: 3306
+db: ro2
+user: ro2
+password: '123'

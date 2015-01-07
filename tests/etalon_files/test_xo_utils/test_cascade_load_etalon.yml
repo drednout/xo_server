@@ -1,0 +1,21 @@
+host: localhost
+port: 3306
+db: ro2
+user: ro2
+password: '123'
+
+host: localhost
+port: 6379
+password: 
+db: 0
+rating_db: 3
+script_dir: redis_lua_scripts
+use_hiredis: True
+
+
+serialization_format: json
+
+
+service:
+    host: localhost
+    port: 12301

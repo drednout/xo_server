@@ -1,0 +1,4 @@
+!include tests/input_files/test_xo_utils/mysql.yml
+!include tests/input_files/test_xo_utils/redis.yml
+
+serialization_format: json
