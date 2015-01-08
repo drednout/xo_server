@@ -3,6 +3,8 @@ import inspect
 
 ERROR_NO_REQUIRED_ARG = 1
 ERROR_BAD_LOGIN_OR_PASSWORD = 2
+ERROR_PASSWORD_NOT_MATCH = 3
+ERROR_PLAYER_IS_EXISTS = 4
 
 ERROR_INTERNAL_SERVER_ERROR = 500
 
@@ -59,7 +61,7 @@ class EInternalError(Exception):
         self.error_to_client = None
         if 'to_client' in kwargs:
             self.error_to_client = kwargs.pop('to_client')
-        self.error_message = DEFAULT_ERROR_MSG
+        self.error_message = err2msg(self.error_id)
         self.exc_lineno, self.exc_funcname, self.exc_filename = get_frame_info_without_leak(back_counter=2)
         if ERROR_MESSAGES.has_key(error_id):
             self.error_message = ERROR_MESSAGES[error_id]
