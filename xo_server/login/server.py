@@ -14,7 +14,7 @@ from xo_server.common.singletone import service
 
 @defer.inlineCallbacks
 def main():
-    parser = argparse.ArgumentParser(description='Game server for XO game.')
+    parser = argparse.ArgumentParser(description='Login service for XO game.')
     parser.add_argument('path_to_config', metavar='FILENAME', 
                         type=str, nargs=1,
                         help='path to the server configuration file')
