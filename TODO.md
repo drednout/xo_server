@@ -3,3 +3,4 @@
 - [ ] Connect rabbitmq
 - [ ] Add custom error page with json, not HTML
 - [ ] Handle EInternalError without printing backtraces
+- [ ] Start services using supervisord
