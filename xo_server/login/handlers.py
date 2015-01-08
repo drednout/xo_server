@@ -1,6 +1,11 @@
 import cyclone.web
+from twisted.python import log
+from twisted.internet import defer
 
 from xo_server.common.singletone import service
+import xo_server.model.player as player_model
+import xo_server.model.session as session_model
+import xo_server.common.error as error
 
 
 class HelloHandler(cyclone.web.RequestHandler):
@@ -11,6 +16,38 @@ class HelloHandler(cyclone.web.RequestHandler):
 class RegisterEmailHandler(cyclone.web.RequestHandler):
     def get(self):
         self.write(self.__class__.__name__)
+
+    @defer.inlineCallbacks
+    def post(self):
+        email = self.get_argument("email")
+        nickname = self.get_argument("nickname")
+        password = self.get_argument("password")
+        password_repeat = self.get_argument("password_repeat")
+
+        log.msg("email is {}".format(email))
+        log.msg("password is {}".format(password))
+
+        if password != password_repeat:
+            raise error.EInternalError(error.ERROR_PASSWORD_NOT_MATCH)
+
+        new_player = player_model.Player(
+                        nickname=nickname,
+                        email=email,
+                        password=password,
+                     )
+        is_exists = yield new_player.is_exists()
+        if is_exists:
+            raise error.EInternalError(error.ERROR_PLAYER_IS_EXISTS)
+
+        yield new_player.insert()
+        new_session = session_model.Session(player_id=new_player.id)
+        yield new_session.insert()
+
+        resp = {
+            "sid": new_session.sid,
+        }
+        self.write(service.pack(resp))
+
 
 
 class LoginEmailHandler(cyclone.web.RequestHandler):
