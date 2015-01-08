@@ -27,9 +27,19 @@ class Player(object):
 
 
     @defer.inlineCallbacks
-    def is_exists(self, email=None):
-        yield 1
-        defer.returnValue(False)
+    def is_exists(self):
+        sql_cmd = """SELECT COUNT(*) as player_count FROM players WHERE
+                     nickname=%(nickname)s OR email=%(email)s"""
+        sql_args = {
+            "nickname": self.nickname,
+            "email": self.email,
+        }
+        res = yield service.sql_cmd.runQuery(sql_cmd, sql_args)
+        is_exists = False
+        if res[0]["player_count"] > 0:
+            is_exists = True
+
+        defer.returnValue(is_exists)
 
     
 
