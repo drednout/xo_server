@@ -1,15 +1,12 @@
 import yaml
 
 
-class SerializationAdapterFactory(object):
-    def __init__(self, is_client=False):
-        self.objects = {
-            'yaml': SerializationAdapterYaml,
-            'json': SerializationAdapterJson,
-        }
-    
-    def getSeriliazationAdapter(self, type_id='json'):
-        return self.objects.get(type_id, 'json')()
+def getSerialiazationAdapter(self, type_id='json'):
+    objects = {
+        'yaml': SerializationAdapterYaml,
+        'json': SerializationAdapterJson,
+    }
+    return objects.get(type_id, 'json')()
 
 
 class SerializationAdapter:
