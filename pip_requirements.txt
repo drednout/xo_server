@@ -1,2 +1,3 @@
 cyclone
 MySQL-python
+pyyaml
