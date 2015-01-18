@@ -55,6 +55,34 @@ class LoginEmailHandler(cyclone.web.RequestHandler):
         self.write(self.__class__.__name__)
 
 
+    @defer.inlineCallbacks
+    def post(self):
+        email = self.get_argument("email")
+        password = self.get_argument("password")
+
+        log.msg("email is {}".format(email))
+        log.msg("password is {}".format(password))
+
+
+        player = player_model.Player(
+                     email=email,
+                     password=password,
+                 )
+        can_login = yield player.can_login()
+        if not can_login:
+            raise error.EInternalError(error.ERROR_BAD_LOGIN_OR_PASSWORD)
+
+        yield player.load_by_email()
+
+        new_session = session_model.Session(player_id=player.id)
+        yield new_session.insert()
+
+        resp = {
+            "sid": new_session.sid,
+        }
+        self.write(service.pack(resp))
+
+
 
 HANDLERS_LIST = [
     (r"/", HelloHandler),
