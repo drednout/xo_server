@@ -121,3 +121,15 @@ class Player(object):
         player_info = player_info[0]
         for attr_name, value in player_info.iteritems():
             setattr(self, attr_name, value)
+
+
+    def as_dict(self):
+        player_info = {
+            "id": self.id,
+            "nickname": self.nickname,
+            "email": self.email,
+            "xp": self.xp,
+            "created": self.created,
+            "updated": self.updated,
+        }
+        return player_info

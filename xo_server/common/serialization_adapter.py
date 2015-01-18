@@ -1,4 +1,6 @@
 import yaml
+import json
+from datetime import datetime
 
 
 def getSerialiazationAdapter(self, type_id='json'):
@@ -24,12 +26,16 @@ class SerializationAdapterYaml(SerializationAdapter):
     def unpack(self, packet):
         return yaml.load(packet)
 
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.isoformat()
+
+        return json.JSONEncoder.default(self, o)
 
 class SerializationAdapterJson(SerializationAdapter):
     def pack(self, arg_dict):
-        import json
-        return json.dumps(arg_dict)
+        return json.dumps(arg_dict, cls=DateTimeEncoder)
     
     def unpack(self, packet):
-        import json
         return json.loads(packet)

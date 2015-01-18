@@ -35,10 +35,28 @@ class LoginHandler(cyclone.web.RequestHandler):
         self.write(service.pack(resp))
 
 
+def validate_sid(sid):
+    if sid not in service.sessions:
+        raise error.EInternalError(error.ERROR_INVALID_SID)
+
+
+class GetProfileHandler(cyclone.web.RequestHandler):
+    def get(self):
+        sid = self.get_argument("sid")
+        validate_sid(sid)
+        session = service.sessions[sid]
+        player = service.players[session.player_id]
+        resp = {
+            "player": player.as_dict(),
+        }
+        self.write(service.pack(resp))
+
+
+
 HANDLERS_LIST = [
     (r"/", HelloHandler),
     (r"/login", LoginHandler),
-    (r"/get_profile", HelloHandler),
+    (r"/get_profile", GetProfileHandler),
     (r"/start_simple_game", HelloHandler),
     (r"/make_move", HelloHandler),
     (r"/get_rating", HelloHandler),
