@@ -84,12 +84,47 @@ class GetCurrentGame(cyclone.web.RequestHandler):
         }
         self.write(service.pack(resp))
 
+
+class MakeMove(cyclone.web.RequestHandler):
+    @defer.inlineCallbacks
+    def post(self):
+        sid = self.get_argument("sid")
+        validate_sid(sid)
+        x = int(self.get_argument("x"))
+        y = int(self.get_argument("y"))
+        player = get_player(sid)
+
+        if player.id not in service.games:
+            raise error.EInternalError(error.ERROR_NO_ACTIVE_GAMES)
+
+        simple_game = service.games[player.id]
+        simple_game.make_player_move(x, y)
+        is_game_over = simple_game.check_game_over()
+        if not is_game_over:
+            simple_game.make_computer_move()
+        is_game_over = simple_game.check_game_over()
+        if is_game_over:
+            winner = simple_game.get_winner()
+            if winner is None:
+                #draw, do nothing
+                pass
+            elif winner == simple_game.computer_player:
+                yield player.take_exp(player_model.SIMPLE_GAME_LOOSE_EXP_DELTA)
+            elif winner == simple_game.live_player:
+                yield player.give_exp(player_model.SIMPLE_GAME_WIN_EXP_DELTA)
+
+        resp = {
+            "game": simple_game.as_dict(),
+        }
+        self.write(service.pack(resp))
+
+
 HANDLERS_LIST = [
     (r"/", HelloHandler),
     (r"/login", LoginHandler),
     (r"/get_profile", GetProfileHandler),
     (r"/start_simple_game", StartSimpleGame),
     (r"/get_current_game", GetCurrentGame),
-    (r"/make_move", HelloHandler),
+    (r"/make_move", MakeMove),
     (r"/get_rating", HelloHandler),
 ]

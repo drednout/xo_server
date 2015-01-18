@@ -13,6 +13,9 @@ def calc_password_hash(password):
     return hashlib.sha1(data).hexdigest()
 
 
+SIMPLE_GAME_WIN_EXP_DELTA = 3
+SIMPLE_GAME_LOOSE_EXP_DELTA = -5
+
 
 class Player(object):
     table_name = "players"
@@ -90,6 +93,32 @@ class Player(object):
     def update(self):
         yield 1
 
+
+    @defer.inlineCallbacks
+    def give_exp(self, xp_delta):
+        sql_cmd = """UPDATE players SET xp=xp+%(xp_delta)s WHERE
+                     id=%(id)s"""
+        sql_data = {
+            "id": self.id,
+            "xp_delta": xp_delta,
+        }
+        yield service.sql_db.runOperation(sql_cmd, sql_data)
+        self.xp += xp_delta
+
+
+    @defer.inlineCallbacks
+    def take_exp(self, xp_delta):
+        if xp_delta < self.xp:
+            xp_delta = self.xp
+
+        sql_cmd = """UPDATE players SET xp=xp-%(xp_delta)s WHERE
+                     id=%(id)s"""
+        sql_data = {
+            "id": self.id,
+            "xp_delta": xp_delta,
+            }
+        yield service.sql_db.runOperation(sql_cmd, sql_data)
+        self.xp -= xp_delta
 
     @defer.inlineCallbacks
     def load_by_email(self):
