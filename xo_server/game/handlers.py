@@ -70,11 +70,26 @@ class StartSimpleGame(cyclone.web.RequestHandler):
         self.write(service.pack(resp))
 
 
+class GetCurrentGame(cyclone.web.RequestHandler):
+    def get(self):
+        sid = self.get_argument("sid")
+        validate_sid(sid)
+        player = get_player(sid)
+        simple_game = None
+        if player.id in service.games:
+            simple_game = service.games[player.id]
+
+        resp = {
+            "game": simple_game.as_dict(),
+        }
+        self.write(service.pack(resp))
+
 HANDLERS_LIST = [
     (r"/", HelloHandler),
     (r"/login", LoginHandler),
     (r"/get_profile", GetProfileHandler),
     (r"/start_simple_game", StartSimpleGame),
+    (r"/get_current_game", GetCurrentGame),
     (r"/make_move", HelloHandler),
     (r"/get_rating", HelloHandler),
 ]
