@@ -30,8 +30,9 @@ class Session(object):
             self.sid = self.generate_sid()
 
         sql_cmd = """INSERT INTO sessions (player_id, sid, ip_addr,
-                     created) VALUES
-                     (%(player_id)s, %(sid)s, %(ip_addr)s, utc_timestamp())"""
+                     created, updated) VALUES
+                     (%(player_id)s, %(sid)s, %(ip_addr)s, utc_timestamp(),
+                     utc_timestamp())"""
         sql_data = {
             "player_id": self.player_id,
             "sid": self.sid,
