@@ -5,6 +5,7 @@ from twisted.python import log
 from xo_server.common.singletone import service
 import xo_server.model.player as player_model
 import xo_server.model.session as session_model
+import xo_server.model.game as game_model
 import xo_server.common.error as error
 
 
@@ -40,24 +41,40 @@ def validate_sid(sid):
         raise error.EInternalError(error.ERROR_INVALID_SID)
 
 
+def get_player(sid):
+    session = service.sessions[sid]
+    player = service.players[session.player_id]
+    return player
+
 class GetProfileHandler(cyclone.web.RequestHandler):
     def get(self):
         sid = self.get_argument("sid")
         validate_sid(sid)
-        session = service.sessions[sid]
-        player = service.players[session.player_id]
+        player = get_player(sid)
         resp = {
             "player": player.as_dict(),
         }
         self.write(service.pack(resp))
 
 
+class StartSimpleGame(cyclone.web.RequestHandler):
+    def post(self):
+        sid = self.get_argument("sid")
+        validate_sid(sid)
+        player = get_player(sid)
+        simple_game = game_model.SimpleGame(player)
+        service.games[player.id] = simple_game
+        resp = {
+            "game": simple_game.as_dict(),
+        }
+        self.write(service.pack(resp))
+
 
 HANDLERS_LIST = [
     (r"/", HelloHandler),
     (r"/login", LoginHandler),
     (r"/get_profile", GetProfileHandler),
-    (r"/start_simple_game", HelloHandler),
+    (r"/start_simple_game", StartSimpleGame),
     (r"/make_move", HelloHandler),
     (r"/get_rating", HelloHandler),
 ]
