@@ -15,7 +15,7 @@ class ServiceSingletone(object):
         yield 1
         self.sql_db = sql_db.ConnectionPool(**self.config["mysql"])
         #db ping
-        yield service.sql_db.runQuery("SELECT 1")
+        yield self.sql_db.runQuery("SELECT 1")
 
         serialization_format = self.config["serialization_format"]
         self.serialization_adapter = serialization_adapter.getSerialiazationAdapter(serialization_format)
