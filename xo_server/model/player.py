@@ -18,7 +18,7 @@ class Player(object):
     table_name = "players"
 
     def __init__(self, nickname=None, xp=0, email=None,
-                password=None):
+                 password=None, id=None):
         self.nickname = nickname
         self.xp = xp
         self.email = email
@@ -26,7 +26,7 @@ class Player(object):
         self.password_hash = None
         if password is not None:
             self.password_hash = calc_password_hash(self.password)
-        self.id = None
+        self.id = id
         self.created = None
         self.updated = None
 
@@ -101,6 +101,22 @@ class Player(object):
         player_info = yield service.sql_db.runQuery(sql_cmd, sql_data)
         if not player_info:
             raise error.EInternalError(error.ERROR_INVALID_PLAYER_EMAIL)
+
+        player_info = player_info[0]
+        for attr_name, value in player_info.iteritems():
+            setattr(self, attr_name, value)
+
+
+    @defer.inlineCallbacks
+    def load_by_id(self):
+        sql_cmd = """SELECT id, nickname, xp, email, created, updated FROM
+                     players WHERE id=%(id)s"""
+        sql_data = {
+            "id": self.id,
+        }
+        player_info = yield service.sql_db.runQuery(sql_cmd, sql_data)
+        if not player_info:
+            raise error.EInternalError(error.ERROR_INVALID_PLAYER_ID)
 
         player_info = player_info[0]
         for attr_name, value in player_info.iteritems():

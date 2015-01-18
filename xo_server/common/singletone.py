@@ -9,6 +9,8 @@ class ServiceSingletone(object):
         self.name = None
         self.config = None
         self.serialization_adapter = None
+        self.players = {}
+        self.sessions = {}
 
     @defer.inlineCallbacks
     def initialize(self):

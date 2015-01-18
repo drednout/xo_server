@@ -8,7 +8,7 @@ import cyclone.web
 
 import xo_server.common.utils as xo_utils
 from xo_server.game.handlers import HANDLERS_LIST
-from xo_server.game.singletone import service
+from xo_server.common.singletone import service
 
 
 

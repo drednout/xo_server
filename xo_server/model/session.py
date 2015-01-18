@@ -2,17 +2,20 @@ import hashlib
 import datetime
 
 from twisted.internet import defer
+from twisted.python import log
 
 from xo_server.common.singletone import service
+import xo_server.common.error as error
 
 
 class Session(object):
     table_name = "sessions"
 
-    def __init__(self, player_id=None, ip_addr=None):
+    def __init__(self, player_id=None, ip_addr=None,
+                 sid=None):
         self.player_id = player_id
         self.ip_addr = ip_addr
-        self.sid = None
+        self.sid = sid
         self.id = None
 
     def generate_sid(self):
@@ -43,6 +46,18 @@ class Session(object):
 
 
     @defer.inlineCallbacks
-    def load_by_sid(self, sid):
-        yield 1
+    def load_by_sid(self):
+        sql_cmd = """SELECT id, player_id, ip_addr, created, updated FROM
+                     sessions WHERE sid=%(sid)s"""
+        sql_data = {
+            "sid": self.sid,
+        }
+        session_info = yield service.sql_db.runQuery(sql_cmd, sql_data)
+        if not session_info:
+            raise error.EInternalError(error.ERROR_INVALID_SID)
+
+        session_info = session_info[0]
+        for attr_name, value in session_info.iteritems():
+            setattr(self, attr_name, value)
+
 
