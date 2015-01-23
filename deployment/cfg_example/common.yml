@@ -3,3 +3,4 @@
 !include cfg/rabbitmq_conf.yml
 
 serialization_format: json
+server_salt: 'fasdfasfa'
