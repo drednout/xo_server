@@ -9,11 +9,13 @@ import cyclone.web
 import xo_server.common.utils as xo_utils
 from xo_server.login.handlers import HANDLERS_LIST
 from xo_server.common.singletone import service
+from xo_server.game.broker_handlers import HANDLERS_MAP
 
 
 
 @defer.inlineCallbacks
 def main():
+    log.startLogging(sys.stdout)
     parser = argparse.ArgumentParser(description='Login service for XO game.')
     parser.add_argument('path_to_config', metavar='FILENAME', 
                         type=str, nargs=1,
@@ -32,14 +34,18 @@ def main():
 
     service.name = "login"
     service.config = config
+    service.service_id = 1
+    service.broker_handler_map = HANDLERS_MAP
+    if "XO_SERVICE_ID" in os.environ:
+        service.service_id = int(os.environ["XO_SERVICE_ID"])
+
     try:
         yield service.initialize()
     except:
         reactor.callLater(0, reactor.stop)
         raise
 
-    log.startLogging(sys.stdout)
-    reactor.listenTCP(config["service"]["port"], application, 
+    reactor.listenTCP(config["service"]["port"], application,
                       interface=config["service"]["host"])
 
 
