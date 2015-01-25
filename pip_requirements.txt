@@ -2,3 +2,4 @@ cyclone
 MySQL-python
 pyyaml
 txamqp
+txredis

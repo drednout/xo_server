@@ -15,6 +15,7 @@ from xo_server.game.broker_handlers import HANDLERS_MAP
 
 @defer.inlineCallbacks
 def main():
+    log.startLogging(sys.stdout)
     parser = argparse.ArgumentParser(description='Game server for XO game.')
     parser.add_argument('path_to_config', metavar='FILENAME', 
                         type=str, nargs=1,
@@ -29,12 +30,15 @@ def main():
 
     config = xo_utils.load_config(path_to_config)
 
-    log.startLogging(sys.stdout)
     application = cyclone.web.Application(HANDLERS_LIST)
 
     service.name = "game"
     service.config = config
     service.broker_handler_map = HANDLERS_MAP
+    service.service_id = 1
+    if "XO_SERVICE_ID" in os.environ:
+        service.service_id = int(os.environ["XO_SERVICE_ID"])
+
     try:
         yield service.initialize()
     except:
