@@ -39,19 +39,20 @@ class BrokerTimeoutError(BaseBrokerError):
 
 
 class RabbitmqBroker(object):
-    def __init__(self, service, config, exchange_name, queue_name, routing_key='',
+    def __init__(self, service, config, exchange_name, queue_name,
                  handlers_map=None):
         self.broker_callback_map = {}
         self.config = config
+        self.service = service
         self.broker = None
         self.broker_conn = None
         self.callback_queue = None
         self.callback_queue_name = None
         self.timeout = 10
-        self.exchange_name = exchange_name
-        self.queue_name = queue_name
-        self.routing_key = routing_key
-        self.service = service
+        self.fanout_exchange_name = exchange_name + "_fanout"
+        self.direct_exchange_name = exchange_name
+        self.queue_name = queue_name + ":{}".format(self.service.service_id)
+        self.direct_routing_key = self.queue_name
         self.handlers_map = handlers_map
 
 
@@ -80,10 +81,14 @@ class RabbitmqBroker(object):
 
 
         yield self.broker.queue_declare(queue=self.queue_name)
-        yield self.broker.exchange_declare(exchange=self.exchange_name, type="direct", durable=True,
+        yield self.broker.exchange_declare(exchange=self.fanout_exchange_name, type="fanout", durable=True,
                                            auto_delete=False)
-        yield self.broker.queue_bind(queue=self.queue_name, exchange=self.exchange_name,
-                                     routing_key=self.routing_key)
+        yield self.broker.exchange_declare(exchange=self.direct_exchange_name, type="direct", durable=True,
+                                           auto_delete=False)
+        yield self.broker.queue_bind(queue=self.queue_name, exchange=self.direct_exchange_name,
+                                     routing_key=self.direct_routing_key)
+        yield self.broker.queue_bind(queue=self.queue_name, exchange=self.fanout_exchange_name,
+                                     routing_key='')
         yield self.broker.basic_consume(queue=self.queue_name, no_ack=True, consumer_tag=self.queue_name)
 
         queue = yield self.broker_conn.queue(self.queue_name)
