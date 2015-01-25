@@ -1,7 +1,7 @@
 rabbitmq:
     host: localhost
     port: 5672
-    vhost: /
+    vhost: /xo
     user: guest
     password: guest
-    spec: amqp0-8.stripped.rabbitmq.xml
+    spec: cfg/amqp0-8.stripped.rabbitmq.xml
