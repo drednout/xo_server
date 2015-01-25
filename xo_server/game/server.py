@@ -9,6 +9,7 @@ import cyclone.web
 import xo_server.common.utils as xo_utils
 from xo_server.game.handlers import HANDLERS_LIST
 from xo_server.common.singletone import service
+from xo_server.game.broker_handlers import HANDLERS_MAP
 
 
 
@@ -28,18 +29,19 @@ def main():
 
     config = xo_utils.load_config(path_to_config)
 
+    log.startLogging(sys.stdout)
     application = cyclone.web.Application(HANDLERS_LIST)
 
     service.name = "game"
     service.config = config
+    service.broker_handler_map = HANDLERS_MAP
     try:
         yield service.initialize()
     except:
         reactor.callLater(0, reactor.stop)
         raise
 
-    log.startLogging(sys.stdout)
-    reactor.listenTCP(config["service"]["port"], application, 
+    reactor.listenTCP(config["service"]["port"], application,
                       interface=config["service"]["host"])
 
 

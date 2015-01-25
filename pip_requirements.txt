@@ -1,3 +1,4 @@
 cyclone
 MySQL-python
 pyyaml
+txamqp
