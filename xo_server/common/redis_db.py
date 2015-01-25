@@ -48,18 +48,18 @@ class RedisDb(object):
 
 
     @defer.inlineCallbacks
-    def bind_person(self, person_id, game_service_id):
+    def bind_player(self, player_id, game_service_id):
         service_key = "game_service:%d" % game_service_id
-        yield self.redis_db.hset("person:%d" % person_id, "gs_id", game_service_id)
-        yield self.redis_db.sadd(service_key + "_persons", person_id)
+        yield self.redis_db.hset("player:%d" % player_id, "gs_id", game_service_id)
+        yield self.redis_db.sadd(service_key + "_players", player_id)
 
         service_list = "game_services"
         yield self.redis_db.zincrby(service_list, 1, game_service_id)
 
 
     @defer.inlineCallbacks
-    def get_person_server(self, person_id):
-        server_info = yield self.redis_db.hget("person:%d" % person_id, "gs_id")
+    def get_player_server(self, player_id):
+        server_info = yield self.redis_db.hget("player:%d" % player_id, "gs_id")
         
         server_id = None
         if server_info:
@@ -67,8 +67,8 @@ class RedisDb(object):
         defer.returnValue(server_id)
 
     @defer.inlineCallbacks
-    def is_my_person(self, person_id):
-        res = yield self.redis_db.sismember("game_service:%d_persons" % self.service_id, person_id)
+    def is_my_player(self, player_id):
+        res = yield self.redis_db.sismember("game_service:%d_players" % self.service_id, player_id)
         defer.returnValue(bool(int(res)))
 
     @staticmethod
@@ -94,8 +94,8 @@ class RedisDb(object):
 
 
     @defer.inlineCallbacks
-    def is_new_person(self, person_id):
-        is_exists = yield self.redis_db.exists("person:%d" % person_id)
+    def is_new_player(self, player_id):
+        is_exists = yield self.redis_db.exists("player:%d" % player_id)
         is_new = not bool(int(is_exists))
         defer.returnValue(is_new)
 
