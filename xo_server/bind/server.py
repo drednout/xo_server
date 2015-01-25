@@ -7,7 +7,7 @@ from twisted.python import log
 
 import xo_server.common.utils as xo_utils
 from xo_server.common.singletone import service
-from xo_server.game.broker_handlers import HANDLERS_MAP
+from xo_server.bind.broker_handlers import HANDLERS_MAP
 
 
 

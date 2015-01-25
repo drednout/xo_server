@@ -150,6 +150,7 @@ class RabbitmqBroker(object):
                 unpacked_msg = self.service.unpack(msg.content.body)
                 log.msg("DEBUG: do_queue_tasks: unpacked_msg is %s" % unpacked_msg)
                 f_name = unpacked_msg["f_name"]
+                log.msg("DEBUG: self.handlers_map are {}".format(self.handlers_map))
                 if f_name not in self.handlers_map:
                     raise error.EInternalError(error.ERROR_NO_BROKER_METHOD)
                 f = self.handlers_map[f_name]

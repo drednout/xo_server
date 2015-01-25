@@ -36,7 +36,8 @@ class ServiceSingletone(object):
                                               handlers_map=self.broker_handler_map)
         yield self.broker.connect_broker()
         #broker ping
-        res = yield self.broker.send_broker_msg(exchange=self.name, f_name="ping", msg={})
+        res = yield self.broker.send_broker_msg(exchange=self.name, f_name="ping", msg={},
+                                                routing_key=self.broker.direct_routing_key)
         log.msg("Broker msg PING res: {}".format(res))
 
     @defer.inlineCallbacks

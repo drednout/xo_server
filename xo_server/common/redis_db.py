@@ -49,12 +49,12 @@ class RedisDb(object):
 
     @defer.inlineCallbacks
     def bind_player(self, player_id, game_service_id):
-        service_key = "game_service:%d" % game_service_id
+        service_key = "game:%d" % game_service_id
         yield self.redis_db.hset("player:%d" % player_id, "gs_id", game_service_id)
         yield self.redis_db.sadd(service_key + "_players", player_id)
 
-        service_list = "game_services"
-        yield self.redis_db.zincrby(service_list, 1, game_service_id)
+        service_list = "games"
+        yield self.redis_db.zincr(service_list, game_service_id)
 
 
     @defer.inlineCallbacks
@@ -68,8 +68,16 @@ class RedisDb(object):
 
     @defer.inlineCallbacks
     def is_my_player(self, player_id):
-        res = yield self.redis_db.sismember("game_service:%d_players" % self.service_id, player_id)
+        res = yield self.redis_db.sismember("game:%d_players" % self.service_id, player_id)
         defer.returnValue(bool(int(res)))
+
+    @defer.inlineCallbacks
+    def _get_player_binding_count(self):
+        res = yield self.redis_db.scard("game:%d_players" % self.service_id)
+        binding_count = 0
+        if res:
+            binding_count = int(res)
+        defer.returnValue(binding_count)
 
     @staticmethod
     def _get_service_list(service_name):
@@ -103,7 +111,8 @@ class RedisDb(object):
     @defer.inlineCallbacks
     def service_started(self):
         service_list = self._get_service_list(self.current_service)
-        yield self.redis_db.zadd(service_list, 0, self.service_id)
+        binding_count = yield self._get_player_binding_count()
+        yield self.redis_db.zadd(service_list, binding_count, self.service_id)
         yield self.redis_db.hset(self.service_key, "started", self._unix_timestamp())
         yield self.redis_db.hset(self.service_key, "id", self.service_id)
         if self.host:

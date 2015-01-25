@@ -24,6 +24,12 @@ class LoginHandler(cyclone.web.RequestHandler):
 
         session = session_model.Session(sid=sid)
         yield session.load_by_sid()
+        log.msg("session.player_id is {}".format(session.player_id))
+        is_my_player = yield service.redis_db.is_my_player(session.player_id)
+        if not is_my_player:
+            raise error.EInternalError(error.ERROR_GAME_SERVER_NOT_MY_PLAYER,
+                                       player_id=session.player_id)
+
         service.sessions[sid] = session
 
         player = player_model.Player(id=session.player_id)

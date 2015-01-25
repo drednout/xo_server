@@ -43,8 +43,18 @@ class RegisterEmailHandler(cyclone.web.RequestHandler):
         new_session = session_model.Session(player_id=new_player.id)
         yield new_session.insert()
 
+        msg = {
+            "player_id": new_player.id
+        }
+        res = yield service.broker.send_broker_msg(exchange="bind_fanout",
+                                                   f_name="bind", msg=msg)
+        game_service_id = res["game_service_id"]
+        game_service_info = yield service.redis_db.get_service_info("game", game_service_id)
+
         resp = {
             "sid": new_session.sid,
+            "game_service_info": game_service_info,
+
         }
         self.write(service.pack(resp))
 
@@ -77,8 +87,20 @@ class LoginEmailHandler(cyclone.web.RequestHandler):
         new_session = session_model.Session(player_id=player.id)
         yield new_session.insert()
 
+        msg = {
+            "player_id": player.id
+        }
+        game_service_id = yield service.redis_db.get_player_server(player.id)
+        if game_service_id is None:
+            res = yield service.broker.send_broker_msg(exchange="bind_fanout",
+                                                       f_name="bind", msg=msg)
+            game_service_id = res["game_service_id"]
+
+        game_service_info = yield service.redis_db.get_service_info("game", game_service_id)
+
         resp = {
             "sid": new_session.sid,
+            "game_service_info": game_service_info,
         }
         self.write(service.pack(resp))
 
