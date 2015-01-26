@@ -1,6 +1,4 @@
 - [ ] Add logging levels support through stdlib logging 
-- [ ] Connect redis
-- [ ] Connect rabbitmq
 - [ ] Add custom error page with json, not HTML
 - [ ] Handle EInternalError without printing backtraces
 - [ ] Start services using supervisord
