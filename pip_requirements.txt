@@ -3,3 +3,4 @@ MySQL-python
 pyyaml
 txamqp
 txredis
+supervisor
